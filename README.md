@@ -24,23 +24,40 @@ npx expo start
 ## 구조
 ```
 app/                  expo-router 라우트
-  _layout.tsx         루트 레이아웃
+  _layout.tsx         루트 레이아웃 (앱 시작 시 데이터 로드 + 알림 재예약)
   (tabs)/             하단 탭
     _layout.tsx
-    index.tsx         오늘
-    history.tsx       기록
-    settings.tsx      설정
+    index.tsx         오늘 (체크 + 메모)
+    history.tsx       기록 (히트맵 + streak + 항목별 30일)
+    settings.tsx      설정 (항목 / 알림 / 데이터)
 src/
-  data/               AsyncStorage CRUD
-  lib/                util (notifications, date 등)
+  data/
+    types.ts          AppData 모델 + 기본 항목
+    storage.ts        AsyncStorage CRUD
+    store.ts          useSyncExternalStore 기반 메모리 캐시
+  lib/
+    date.ts           한국어 날짜 포맷
+    id.ts             단순 uid
+    notifications.ts  권한 요청 + scheduleNotificationAsync
+    stats.ts          히트맵 / streak / 30일 완료율
   components/         재사용 컴포넌트
+```
+
+## 데이터 키
+`AsyncStorage` 키 `checklist:v1`
+```json
+{
+  "items": [{ "id": "...", "name": "QT", "order": 0 }],
+  "records": { "2026-05-16": { "checks": { "<itemId>": true }, "memo": "..." } },
+  "settings": { "notification": { "enabled": true, "hour": 6, "minute": 30 } }
+}
 ```
 
 ## 진행
 - [x] 1. 프로젝트 셋업
-- [ ] 2. 데이터 레이어
-- [ ] 3. 오늘 탭
-- [ ] 4. 설정 탭 - 항목 관리
-- [ ] 5. 알림
-- [ ] 6. 기록 탭
-- [ ] 7. 백업/복원/초기화
+- [x] 2. 데이터 레이어 (CRUD + 시드)
+- [x] 3. 오늘 탭 (체크 + 메모, 자정 넘김 대응)
+- [x] 4. 설정 탭 - 항목 CRUD + 순서 변경
+- [x] 5. 알림 (권한 요청 + 시각 변경 시 재예약)
+- [x] 6. 기록 탭 (히트맵 12주 + streak + 항목별 30일)
+- [x] 7. 백업/복원/초기화 (JSON Share + import + reset)
